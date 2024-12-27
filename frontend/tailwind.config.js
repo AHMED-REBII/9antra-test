@@ -5,6 +5,7 @@ export default {
     extend: {
       colors: {
         principal: "#af2e65",
+        contact: "#f9b454",
       },
       screens: {
         sm: "576px",

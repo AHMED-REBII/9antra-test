@@ -1,8 +1,14 @@
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
 
 const App = () => {
   return (
-    <div className="text-9xl text-red-700 font-bold ">9antra.tn</div>
-  )
-}
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+      </Routes>
+    </Router>
+  );
+};
 
-export default App
+export default App;
