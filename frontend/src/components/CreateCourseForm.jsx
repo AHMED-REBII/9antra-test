@@ -1,38 +1,70 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { PlusCircle, Upload } from "lucide-react";
+import { createCourse } from "../api/courseAPI"; // Import createCourse function
 
 const CreateCourseForm = () => {
   const [course, setCourse] = useState({
     name: "",
     price: "",
-    image: "",
+    image: null,
   });
 
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      alert("Course created successfully!");
-      setCourse({ name: "", price: "", image: "" });
+
+    // Log course data before submission
+    console.log('Course data before submission:', course);
+
+    // Check if image is selected, if not, alert user
+    if (!course.image) {
+      alert("Please upload an image.");
       setLoading(false);
-    }, 1500);
+      return;
+    }
+
+    // Create a FormData object to handle image file
+    const formData = new FormData();
+    formData.append("name", course.name);
+    formData.append("price", course.price);
+    formData.append("image", course.image); // Append image correctly
+
+    // Log form data before sending
+    console.log("Sending the following data to the server:");
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ": " + pair[1]); // Debugging to see data before sending
+    }
+
+    try {
+      // Call createCourse with the formData
+      const response = await createCourse(formData); 
+      console.log(response);
+
+      // Handle success response
+      alert(response.message);  // Assuming 'message' is returned on success
+      setCourse({ name: "", price: "", image: null });  // Reset the form
+
+    } catch (error) {
+      console.error("Error creating course:", error.response ? error.response.data : error.message);
+      alert("Error creating course, please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+    console.log('Selected file:', file);
     if (file) {
-      const reader = new FileReader();
-
-      reader.onloadend = () => {
-        setCourse({ ...course, image: reader.result });
-      };
-
-      reader.readAsDataURL(file);
+      setCourse({ ...course, image: file });
     }
   };
+
+  // Check if all fields are valid before enabling the submit button
+  const isFormValid = course.name && course.price && course.image;
 
   return (
     <motion.div
@@ -41,11 +73,16 @@ const CreateCourseForm = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
     >
-      <h2 className="text-2xl font-semibold mb-6 text-principal">Create New Course</h2>
+      <h2 className="text-2xl font-semibold mb-6 text-principal">
+        Create New Course
+      </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-300">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-300"
+          >
             Course Name
           </label>
           <input
@@ -60,7 +97,10 @@ const CreateCourseForm = () => {
         </div>
 
         <div>
-          <label htmlFor="price" className="block text-sm font-medium text-gray-300">
+          <label
+            htmlFor="price"
+            className="block text-sm font-medium text-gray-300"
+          >
             Price
           </label>
           <input
@@ -90,13 +130,15 @@ const CreateCourseForm = () => {
             <Upload className="h-5 w-5 inline-block mr-2" />
             Upload Image
           </label>
-          {course.image && <span className="ml-3 text-sm text-gray-400">Image uploaded</span>}
+          {course.image && (
+            <span className="ml-3 text-sm text-gray-400">Image uploaded</span>
+          )}
         </div>
 
         <button
           type="submit"
           className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-principal hover:bg-principal focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-principal disabled:opacity-50"
-          disabled={loading}
+          disabled={loading || !isFormValid} // Disable if not valid or loading
         >
           {loading ? (
             <>

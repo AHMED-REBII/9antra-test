@@ -3,17 +3,20 @@ import Course from "../models/course.model.js";
 export const createCourse = async (req, res) => {
   try {
     const { name, price } = req.body;
+    const { file } = req;
 
-    if (!name || !price || !req.file) {
+    if (!name || !price || !file) {
       return res
         .status(400)
-        .json({ message: "All fields are required, including the image" });
+        .json({ message: "All fields are required, including the image." });
     }
+
+    const imagePath = file.path.replace(/\\/g, "/");
 
     const newCourse = new Course({
       name,
       price,
-      image: req.file.path,
+      image: imagePath,
     });
 
     const savedCourse = await newCourse.save();

@@ -1,36 +1,38 @@
 import { motion } from "framer-motion";
 import { Edit2, Trash } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";  
+import { getAllCourses } from "../api/courseAPI";  
 
 const CoursesList = () => {
+  const [courses, setCourses] = useState([]); 
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState(null);
+  const [loading, setLoading] = useState(true);  
 
-  const courses = [
-    {
-      id: 1,
-      name: "Web Development",
-      price: 199.99,
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      id: 2,
-      name: "Data Science",
-      price: 249.99,
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      id: 3,
-      name: "Graphic Design",
-      price: 149.99,
-      image: "https://via.placeholder.com/150",
-    },
-  ];
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const data = await getAllCourses();
+        setCourses(data.courses);  
+      } catch (error) {
+        console.error("Error fetching courses:", error.message);
+        alert("Error fetching courses, please try again.");
+      } finally {
+        setLoading(false);  
+      }
+    };
+
+    fetchCourses();  
+  }, []);
 
   const handleDelete = (courseId) => {
     console.log("Deleting course with ID:", courseId);
     setShowDeletePopup(false);
   };
+
+  if (loading) {
+    return <div>Loading courses...</div>; 
+  }
 
   return (
     <>
@@ -72,11 +74,11 @@ const CoursesList = () => {
 
           <tbody className="bg-gray-800 divide-y divide-gray-700">
             {courses.map((course) => (
-              <tr key={course.id} className="hover:bg-gray-700">
+              <tr key={course._id} className="hover:bg-gray-700">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <img
                     className="h-10 w-10 rounded-full object-cover"
-                    src={course.image}
+                    src={`http://localhost:5000/${course.image}`}  
                     alt={course.name}
                   />
                 </td>
@@ -110,7 +112,6 @@ const CoursesList = () => {
         </table>
       </motion.div>
 
-      {/* Delete Confirmation Popup */}
       {showDeletePopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-gray-800 rounded-lg shadow-lg p-6 max-w-sm">
@@ -129,7 +130,7 @@ const CoursesList = () => {
               </button>
               <button
                 className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-                onClick={() => handleDelete(courseToDelete?.id)}
+                onClick={() => handleDelete(courseToDelete?._id)}
               >
                 Delete
               </button>
