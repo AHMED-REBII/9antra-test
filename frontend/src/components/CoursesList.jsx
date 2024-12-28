@@ -9,6 +9,8 @@ const CoursesList = () => {
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1); // State for current page
+  const [itemsPerPage] = useState(5); // Set items per page to 5
   const navigate = useNavigate(); // Initialize the navigate hook
 
   useEffect(() => {
@@ -42,6 +44,17 @@ const CoursesList = () => {
     return <div>Loading courses...</div>;
   }
 
+  // Get the courses for the current page
+  const indexOfLastCourse = currentPage * itemsPerPage;
+  const indexOfFirstCourse = indexOfLastCourse - itemsPerPage;
+  const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Calculate total number of pages
+  const totalPages = Math.ceil(courses.length / itemsPerPage);
+
   return (
     <>
       <motion.div
@@ -69,7 +82,7 @@ const CoursesList = () => {
           </thead>
 
           <tbody className="bg-gray-800 divide-y divide-gray-700">
-            {courses.map((course) => (
+            {currentCourses.map((course) => (
               <tr key={course._id} className="hover:bg-gray-700">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <img
@@ -111,6 +124,26 @@ const CoursesList = () => {
           </tbody>
         </table>
       </motion.div>
+
+      <div className="flex justify-center items-center mt-4">
+        <button
+          onClick={() => paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-4 py-2 text-white bg-gray-700 hover:bg-gray-600 rounded-md disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span className="mx-3 text-sm text-black">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={() => paginate(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 text-white bg-gray-700 hover:bg-gray-600 rounded-md disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
 
       {showDeletePopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
