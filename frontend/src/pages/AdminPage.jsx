@@ -2,7 +2,7 @@ import { PlusCircle, ShoppingBasket } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-import CreateCourseForm from "../components/CreateCourseForm";
+import CreateUpdateCourseForm from "../components/CreateUpdateCourseForm";
 import CoursesList from "../components/CoursesList";
 
 const tabs = [
@@ -41,7 +41,9 @@ const AdminPage = () => {
             </button>
           ))}
         </div>
-        {activeTab === "create" && <CreateCourseForm />}
+        {activeTab === "create" && (
+          <CreateUpdateCourseForm isEditMode={false} />
+        )}
         {activeTab === "courses" && <CoursesList />}
       </div>
     </div>

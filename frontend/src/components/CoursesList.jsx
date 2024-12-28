@@ -2,12 +2,14 @@ import { motion } from "framer-motion";
 import { Edit2, Trash } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getAllCourses, deleteCourse } from "../api/courseAPI"; 
+import { useNavigate } from "react-router-dom"; // Import the useNavigate hook
 
 const CoursesList = () => {
   const [courses, setCourses] = useState([]);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); // Initialize the navigate hook
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -83,7 +85,15 @@ const CoursesList = () => {
                   <div className="text-sm text-gray-300">{course.price.toFixed(2)} DT/Month</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button className="text-blue-400 hover:text-blue-300 mr-3">
+                  {/* Edit button now navigates to the edit page */}
+                  <button 
+                    className="text-blue-400 hover:text-blue-300 mr-3"
+                    onClick={() => {
+                      navigate(`/edit-course/${course._id}`, {
+                        state: { courseData: course }
+                      });
+                    }}
+                  >
                     <Edit2 className="h-5 w-5" />
                   </button>
                   <button

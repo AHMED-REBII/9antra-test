@@ -33,7 +33,7 @@ export const getAllCourses = async () => {
 
 export const updateCourse = async (id, formData) => {
   try {
-    const response = await axios.put(`${API_BASE_URL}/${id}`, formData, {
+    const response = await axios.patch(`${API_BASE_URL}/${id}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -55,6 +55,19 @@ export const deleteCourse = async (id) => {
   } catch (error) {
     console.error(
       "Error deleting course:",
+      error.response ? error.response.data : error.message
+    );
+    throw error;
+  }
+};
+
+export const getCourseById = async (id) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error retrieving course by ID:",
       error.response ? error.response.data : error.message
     );
     throw error;
