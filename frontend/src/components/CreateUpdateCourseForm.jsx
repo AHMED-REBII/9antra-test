@@ -2,20 +2,21 @@ import { useState, useEffect } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { PlusCircle, Upload } from "lucide-react";
-import { createCourse, updateCourse, getCourseById } from "../api/courseAPI"; 
+import { createCourse, updateCourse, getCourseById } from "../api/courseAPI";
 
 const CreateUpdateCourseForm = () => {
-  const { courseId } = useParams(); 
-  const location = useLocation(); 
+  const { courseId } = useParams();
+  const location = useLocation();
   const [course, setCourse] = useState({
     name: "",
     price: "",
     image: null,
+    imageUrl: "",  
   });
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate(); // To redirect to /admin
-  const isEditMode = Boolean(courseId); 
+  const navigate = useNavigate();
+  const isEditMode = Boolean(courseId);
 
   useEffect(() => {
     if (location.state?.courseData) {
@@ -23,6 +24,7 @@ const CreateUpdateCourseForm = () => {
         name: location.state.courseData.name,
         price: location.state.courseData.price,
         image: null,
+        imageUrl: location.state.courseData.image ? `http://localhost:5000/${location.state.courseData.image}` : "", 
       });
     } else if (isEditMode) {
       const fetchCourseData = async () => {
@@ -32,6 +34,7 @@ const CreateUpdateCourseForm = () => {
             name: response.name,
             price: response.price,
             image: null,
+            imageUrl: response.image ? `http://localhost:5000/${response.image}` : "", 
           });
         } catch (error) {
           console.error("Error fetching course:", error);
@@ -60,17 +63,15 @@ const CreateUpdateCourseForm = () => {
     try {
       let response;
       if (isEditMode) {
-        response = await updateCourse(courseId, formData); 
+        response = await updateCourse(courseId, formData);
       } else {
-        response = await createCourse(formData); 
+        response = await createCourse(formData);
       }
 
-      alert(response.message); 
-      setCourse({ name: "", price: "", image: null });
+      alert(response.message);
+      setCourse({ name: "", price: "", image: null, imageUrl: "" });
 
-      // Redirect to /admin after update
-      navigate("/admin"); 
-
+      navigate("/admin");
     } catch (error) {
       console.error(error);
       alert("Error processing the course. Please try again.");
@@ -82,7 +83,7 @@ const CreateUpdateCourseForm = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setCourse({ ...course, image: file });
+      setCourse({ ...course, image: file, imageUrl: URL.createObjectURL(file) });
     }
   };
 
@@ -159,10 +160,10 @@ const CreateUpdateCourseForm = () => {
             )}
           </div>
 
-          {isEditMode && course.image && (
+          {isEditMode && course.imageUrl && (
             <div className="mt-2">
               <img
-                src={`http://localhost:5000/${course.image}`}
+                src={course.imageUrl}
                 alt={course.name}
                 className="w-20 h-20 rounded-md"
               />

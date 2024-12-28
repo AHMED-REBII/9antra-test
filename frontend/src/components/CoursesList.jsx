@@ -2,16 +2,16 @@ import { motion } from "framer-motion";
 import { Edit2, Trash } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getAllCourses, deleteCourse } from "../api/courseAPI"; 
-import { useNavigate } from "react-router-dom"; // Import the useNavigate hook
+import { useNavigate } from "react-router-dom"; 
 
 const CoursesList = () => {
   const [courses, setCourses] = useState([]);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1); // State for current page
-  const [itemsPerPage] = useState(5); // Set items per page to 5
-  const navigate = useNavigate(); // Initialize the navigate hook
+  const [currentPage, setCurrentPage] = useState(1); 
+  const [itemsPerPage] = useState(5); 
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -44,15 +44,12 @@ const CoursesList = () => {
     return <div>Loading courses...</div>;
   }
 
-  // Get the courses for the current page
   const indexOfLastCourse = currentPage * itemsPerPage;
   const indexOfFirstCourse = indexOfLastCourse - itemsPerPage;
   const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
 
-  // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Calculate total number of pages
   const totalPages = Math.ceil(courses.length / itemsPerPage);
 
   return (
