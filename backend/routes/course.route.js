@@ -5,6 +5,7 @@ import {
   getallCourses,
   updateCourse,
   deleteCourse,
+  getCourseById
 } from "../controllers/course.controller.js";
 
 const router = express.Router();
@@ -22,6 +23,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.get("/", getallCourses);
+router.get("/:id", getCourseById);
 router.post("/create", upload.single("image"), createCourse);
 router.patch("/:id", upload.single("image"), updateCourse); 
 router.delete("/:id", deleteCourse);
