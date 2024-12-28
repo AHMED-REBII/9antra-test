@@ -1,37 +1,43 @@
 import { motion } from "framer-motion";
 import { Edit2, Trash } from "lucide-react";
-import { useState, useEffect } from "react";  
-import { getAllCourses } from "../api/courseAPI";  
+import { useState, useEffect } from "react";
+import { getAllCourses, deleteCourse } from "../api/courseAPI"; 
 
 const CoursesList = () => {
-  const [courses, setCourses] = useState([]); 
+  const [courses, setCourses] = useState([]);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState(null);
-  const [loading, setLoading] = useState(true);  
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         const data = await getAllCourses();
-        setCourses(data.courses);  
+        setCourses(data.courses);
       } catch (error) {
         console.error("Error fetching courses:", error.message);
         alert("Error fetching courses, please try again.");
       } finally {
-        setLoading(false);  
+        setLoading(false);
       }
     };
 
-    fetchCourses();  
+    fetchCourses();
   }, []);
 
-  const handleDelete = (courseId) => {
-    console.log("Deleting course with ID:", courseId);
-    setShowDeletePopup(false);
+  const handleDelete = async (courseId) => {
+    try {
+      await deleteCourse(courseId); 
+      setCourses(courses.filter(course => course._id !== courseId));
+      setShowDeletePopup(false); 
+    } catch (error) {
+      console.error("Error deleting course:", error.message);
+      alert("Error deleting course. Please try again.");
+    }
   };
 
   if (loading) {
-    return <div>Loading courses...</div>; 
+    return <div>Loading courses...</div>;
   }
 
   return (
@@ -45,28 +51,16 @@ const CoursesList = () => {
         <table className="min-w-full divide-y divide-gray-700">
           <thead className="bg-gray-700">
             <tr>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-              >
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 Image
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-              >
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 Course Name
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-              >
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 Price
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-              >
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -78,19 +72,15 @@ const CoursesList = () => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <img
                     className="h-10 w-10 rounded-full object-cover"
-                    src={`http://localhost:5000/${course.image}`}  
+                    src={`http://localhost:5000/${course.image}`}
                     alt={course.name}
                   />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-white">
-                    {course.name}
-                  </div>
+                  <div className="text-sm font-medium text-white">{course.name}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-300">
-                    {course.price.toFixed(2)} DT/Month
-                  </div>
+                  <div className="text-sm text-gray-300">{course.price.toFixed(2)} DT/Month</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <button className="text-blue-400 hover:text-blue-300 mr-3">
@@ -99,8 +89,8 @@ const CoursesList = () => {
                   <button
                     className="text-red-400 hover:text-red-300"
                     onClick={() => {
-                      setCourseToDelete(course);
-                      setShowDeletePopup(true);
+                      setCourseToDelete(course); 
+                      setShowDeletePopup(true);  
                     }}
                   >
                     <Trash className="h-5 w-5" />
@@ -115,11 +105,9 @@ const CoursesList = () => {
       {showDeletePopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-gray-800 rounded-lg shadow-lg p-6 max-w-sm">
-            <h2 className="text-lg font-medium text-white mb-4">
-              Confirm Delete
-            </h2>
+            <h2 className="text-lg font-medium text-white mb-4">Confirm Delete</h2>
             <p className="text-gray-300 mb-6">
-              Are you sure you want to delete this Course ?
+              Are you sure you want to delete this Course?
             </p>
             <div className="flex justify-end">
               <button
